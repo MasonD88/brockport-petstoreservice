@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.petstore.AnimalType;
 
 
 /**
@@ -36,6 +37,20 @@ public class PetInventoryService {
 
        petRepo = new PetRepository();
     }
+
+    public List<PetEntity> getPetsByAnimalType(AnimalType animalType) throws PetNotFoundSaleException,  PetDataStoreException {
+        List<PetEntity> sortedPets = this.petRepo.getPetInventory().stream()
+                .filter(p -> p.getAnimalType().equals(animalType))
+                .sorted(Comparator.comparingInt(p->p.getPetId()))
+                .collect(Collectors.toList());
+        if(sortedPets.isEmpty())
+        {
+            throw new PetNotFoundSaleException("0 results found for search criteria animalType[" + animalType
+                    +"] Please try again!!");
+        }
+        return sortedPets;
+    }
+
 
     /**
      * This is used to show stub

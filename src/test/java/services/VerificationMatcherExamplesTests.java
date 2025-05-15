@@ -34,6 +34,19 @@ public class VerificationMatcherExamplesTests {
             return ArgumentMatcher.super.type();
         }
     }
+
+    class IsListOfThreeElements implements ArgumentMatcher<List> {
+
+        @Override
+        public boolean matches(List list) {
+            return ((List) list).size() == 3;
+        }
+
+        @Override
+        public Class<?> type() {
+            return ArgumentMatcher.super.type();
+        }
+    }
     @Test
     @DisplayName("Verification Matcher AddAll Test")
     public void verificationMatcherAddAllTest() throws PetNotFoundSaleException, PetDataStoreException
@@ -79,7 +92,7 @@ public class VerificationMatcherExamplesTests {
     {
         List mock = mock(List.class);
         //arrange
-        Mockito.when(mock.addAll(argThat(new IsListOfTwoElements()))).thenReturn(true);
+        Mockito.when(mock.addAll(argThat(new IsListOfThreeElements()))).thenReturn(true);
         //act
         mock.addAll(Arrays.asList("one", "two", "three"));
         //assert verify(mock, times(0)).addAll(argThat(list -> list.contains("three")));

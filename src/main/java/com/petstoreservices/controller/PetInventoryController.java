@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.petstore.AnimalType;
 
 
 
@@ -30,6 +31,27 @@ public class PetInventoryController
 
     }
 
+    @RequestMapping("/inventory/search/animal/{animalType}")
+    public ResponseEntity<?> findPetByAnimalType(@PathVariable ("animalType") AnimalType animalType)
+    {
+        String responseBody;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try{
+            responseBody = gson.toJson(
+                    this.inventoryService.getPetsByAnimalType(animalType));
+            System.out.println("Exception NOT  caught");
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        }catch(PetNotFoundSaleException e)
+        {
+            System.out.println("Exception caught");
+            responseBody = "The animalType [" + animalType + "] is not supported!";
+            return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+        }catch( PetDataStoreException f)
+        {
+            f.printStackTrace();
+            return new ResponseEntity<>("Issue with Reading Json file", HttpStatus.NO_CONTENT);
+        }
+    }
 
     //===================  GET SERVICES  ========================================================
 
@@ -53,7 +75,16 @@ public class PetInventoryController
         }
 
     }
+    // Added to support a PUT request made from UpdateInventoryByPetTypeTests
+    @PutMapping("/inventory/petType/{petType}/petId/{petId}")
+    public ResponseEntity<PetEntity> updatePet(
+            @PathVariable PetType petType,
+            @PathVariable int petId,
+            @RequestBody PetEntity updatedPet) throws Exception {
 
+        PetEntity result = inventoryService.updateInventoryByPetIdAndPetType(petType, petId, updatedPet);
+        return ResponseEntity.ok(result);
+    }
     /**
      * GetRequest for a specific pet type and id
      * <br>url: <a href="http://localhost:8080/inventory/search?petType=DOG&petId=2">http://localhost:8080/inventory/search?petType=DOG&petId=2</a>
